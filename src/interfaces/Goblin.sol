@@ -4,7 +4,12 @@ pragma solidity ^0.6.0;
 
 interface Goblin {
     /// @dev Work on a (potentially new) position. Optionally send ETH back to Bank.
-    function work(uint256 id, address user, uint256 debt, bytes calldata data) external payable;
+    function work(
+        uint256 id,
+        address user,
+        uint256 debt,
+        bytes calldata data
+    ) external payable;
 
     /// @dev Re-invest whatever the goblin is working on.
     function reinvest() external;

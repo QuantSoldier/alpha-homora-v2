@@ -5,16 +5,18 @@
 
 pragma solidity ^0.6.0;
 
-import {ERC20} from '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import {ReentrancyGuard} from '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
-import {SafeMath} from '@openzeppelin/contracts/math/SafeMath.sol';
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {
+    ReentrancyGuard
+} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 
-import {Math} from './lib/Math.sol';
-import {SafeToken} from './lib/SafeToken.sol';
+import {Math} from "./lib/Math.sol";
+import {SafeToken} from "./lib/SafeToken.sol";
 
-import {BankConfig} from './interfaces/BankConfig.sol';
-import {Goblin} from './interfaces/Goblin.sol';
+import {BankConfig} from "./interfaces/BankConfig.sol";
+import {Goblin} from "./interfaces/Goblin.sol";
 
 contract Bank is ERC20, ReentrancyGuard, Ownable {
     /// @notice Libraries
@@ -25,7 +27,12 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     event AddDebt(uint256 indexed id, uint256 debtShare);
     event RemoveDebt(uint256 indexed id, uint256 debtShare);
     event Work(uint256 indexed id, uint256 loan);
-    event Kill(uint256 indexed id, address indexed killer, uint256 prize, uint256 left);
+    event Kill(
+        uint256 indexed id,
+        address indexed killer,
+        uint256 prize,
+        uint256 left
+    );
 
     struct Position {
         address goblin;
@@ -34,7 +41,7 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     }
 
     BankConfig public config;
-    mapping (uint256 => Position) public positions;
+    mapping(uint256 => Position) public positions;
     uint256 public nextPositionID = 1;
 
     uint256 public glbDebtShare;
@@ -52,7 +59,8 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     modifier accrue(uint256 msgValue) {
         if (now > lastAccrueTime) {
             uint256 interest = pendingInterest(msgValue);
-            uint256 toReserve = interest.mul(config.getReservePoolBps()).div(10000);
+            uint256 toReserve =
+                interest.mul(config.getReservePoolBps()).div(10000);
             reservePool = reservePool.add(toReserve);
             glbDebtVal = glbDebtVal.add(interest);
             lastAccrueTime = now;
@@ -60,7 +68,10 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
         _;
     }
 
-    constructor(BankConfig _config) public ERC20("Interest Bearing ETH", "ibETH") {
+    constructor(BankConfig _config)
+        public
+        ERC20("Interest Bearing ETH", "ibETH")
+    {
         config = _config;
         lastAccrueTime = now;
     }
@@ -107,7 +118,8 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     /// @dev Add more ETH to the bank. Hope to get some good returns.
     function deposit() external payable accrue(msg.value) nonReentrant {
         uint256 total = totalETH().sub(msg.value);
-        uint256 share = total == 0 ? msg.value : msg.value.mul(totalSupply()).div(total);
+        uint256 share =
+            total == 0 ? msg.value : msg.value.mul(totalSupply()).div(total);
         _mint(msg.sender, share);
     }
 
@@ -124,10 +136,13 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     /// @param loan The amount of ETH to borrow from the pool.
     /// @param maxReturn The max amount of ETH to return to the pool.
     /// @param data The calldata to pass along to the goblin for more working context.
-    function work(uint256 id, address goblin, uint256 loan, uint256 maxReturn, bytes calldata data)
-        external payable
-        onlyEOA accrue(msg.value) nonReentrant
-    {
+    function work(
+        uint256 id,
+        address goblin,
+        uint256 loan,
+        uint256 maxReturn,
+        bytes calldata data
+    ) external payable onlyEOA accrue(msg.value) nonReentrant {
         // 1. Sanity check the input position, or add a new position of ID is 0.
         if (id == 0) {
             id = nextPositionID++;
@@ -141,13 +156,19 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
         emit Work(id, loan);
         // 2. Make sure the goblin can accept more debt and remove the existing debt.
         require(config.isGoblin(goblin), "not a goblin");
-        require(loan == 0 || config.acceptDebt(goblin), "goblin not accept more debt");
+        require(
+            loan == 0 || config.acceptDebt(goblin),
+            "goblin not accept more debt"
+        );
         uint256 debt = _removeDebt(id).add(loan);
         // 3. Perform the actual work, using a new scope to avoid stack-too-deep errors.
         uint256 back;
         {
             uint256 sendETH = msg.value.add(loan);
-            require(sendETH <= address(this).balance, "insufficient ETH in the bank");
+            require(
+                sendETH <= address(this).balance,
+                "insufficient ETH in the bank"
+            );
             uint256 beforeETH = address(this).balance.sub(sendETH);
             Goblin(goblin).work.value(sendETH)(id, msg.sender, debt, data);
             back = address(this).balance.sub(beforeETH);
@@ -159,11 +180,15 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
             require(debt >= config.minDebtSize(), "too small debt size");
             uint256 health = Goblin(goblin).health(id);
             uint256 workFactor = config.workFactor(goblin, debt);
-            require(health.mul(workFactor) >= debt.mul(10000), "bad work factor");
+            require(
+                health.mul(workFactor) >= debt.mul(10000),
+                "bad work factor"
+            );
             _addDebt(id, debt);
         }
         // 5. Return excess ETH back.
-        if (back > lessDebt) SafeToken.safeTransferETH(msg.sender, back - lessDebt);
+        if (back > lessDebt)
+            SafeToken.safeTransferETH(msg.sender, back - lessDebt);
     }
 
     /// @dev Kill the given to the position. Liquidate it immediately if killFactor condition is met.
@@ -224,7 +249,11 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     /// @dev Withdraw ETH reserve for underwater positions to the given address.
     /// @param to The address to transfer ETH to.
     /// @param value The number of ETH tokens to withdraw. Must not exceed `reservePool`.
-    function withdrawReserve(address to, uint256 value) external onlyOwner nonReentrant {
+    function withdrawReserve(address to, uint256 value)
+        external
+        onlyOwner
+        nonReentrant
+    {
         reservePool = reservePool.sub(value);
         SafeToken.safeTransferETH(to, value);
     }
@@ -239,10 +268,14 @@ contract Bank is ERC20, ReentrancyGuard, Ownable {
     /// @param token The token contract. Can be anything. This contract should not hold ERC20 tokens.
     /// @param to The address to send the tokens to.
     /// @param value The number of tokens to transfer to `to`.
-    function recover(address token, address to, uint256 value) external onlyOwner nonReentrant {
+    function recover(
+        address token,
+        address to,
+        uint256 value
+    ) external onlyOwner nonReentrant {
         token.safeTransfer(to, value);
     }
 
     /// @dev Fallback function to accept ETH. Goblins will send ETH back the pool.
-    fallback() external payable {}
+    receive() external payable {}
 }

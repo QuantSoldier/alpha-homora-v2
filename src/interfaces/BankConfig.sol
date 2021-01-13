@@ -7,7 +7,10 @@ interface BankConfig {
     function minDebtSize() external view returns (uint256);
 
     /// @dev Return the interest rate per second, using 1e18 as denom.
-    function getInterestRate(uint256 debt, uint256 floating) external view returns (uint256);
+    function getInterestRate(uint256 debt, uint256 floating)
+        external
+        view
+        returns (uint256);
 
     /// @dev Return the bps rate for reserve pool.
     function getReservePoolBps() external view returns (uint256);
@@ -22,8 +25,14 @@ interface BankConfig {
     function acceptDebt(address goblin) external view returns (bool);
 
     /// @dev Return the work factor for the goblin + ETH debt, using 1e4 as denom. Revert on non-goblin.
-    function workFactor(address goblin, uint256 debt) external view returns (uint256);
+    function workFactor(address goblin, uint256 debt)
+        external
+        view
+        returns (uint256);
 
     /// @dev Return the kill factor for the goblin + ETH debt, using 1e4 as denom. Revert on non-goblin.
-    function killFactor(address goblin, uint256 debt) external view returns (uint256);
+    function killFactor(address goblin, uint256 debt)
+        external
+        view
+        returns (uint256);
 }

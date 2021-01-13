@@ -1,8 +1,16 @@
 {
   "solidity.enableLocalNodeCompiler": false,
   "solidity.enabledAsYouTypeCompilationErrorCheck": true,
-  "solidity.validationDelay": 1500,
-  "solidity.compileUsingRemoteVersion": "v0.5.16+commit.27d51765",
-  "solidity.packageDefaultDependenciesContractsDirectory": "src",
+  "solidity.validationDelay": 1000,
+  "solidity.compileUsingRemoteVersion": "v0.6.12+commit.27d51765",
+  "solidity.packageDefaultDependenciesContractsDirectory": "",
   "solidity.packageDefaultDependenciesDirectory": "node_modules",
+  "solidity.linter": "solhint",
+  "mochaExplorer.env": {
+    "HARDHAT_CONFIG": "hardhat.config.ts",
+    "HARDHAT_COMPILE": "true"
+  },
+  "mochaExplorer.require": [
+    "ts-node/register/transpile-only"
+  ],
 }

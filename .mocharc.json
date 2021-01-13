@@ -1,0 +1,13 @@
+{
+  "allow-uncaught": true,
+  "diff": true,
+  "spec": "test/**/*.test.ts",
+  "extension": ["ts"],
+  "recursive": true,
+  "reporter": "spec",
+  "require": ["ts-node/register", "hardhat/register"],
+  "timeout": 1800000,
+  "ui": "bdd",
+  "watch": false,
+  "watch-files": ["src/**/*.sol", "test/**/*.ts"]
+}

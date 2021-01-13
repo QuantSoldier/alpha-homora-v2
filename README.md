@@ -1,6 +1,6 @@
 # Alpha Homora V2 Smart Contracts
 
-Aggregation of Solidity Smart Contracts used to make up the Alpha Homora V2 ecosystem. 
+Aggregation of Solidity Smart Contracts used to make up the Alpha Homora V2 ecosystem.
 
 https://homora.alphafinance.io/
 
@@ -10,5 +10,23 @@ Example Contract Deployment (2021-01-09): https://etherscan.io/address/0x7ace79e
 
 *Notice: I am not affliated with Alpha Finance Labs. This project is purely for educational purposes.*
 
+## Usage
 
+1. Install the package dependencies with npm/yarn
+
+```
+yarn install
+```
+
+2. Compile the contracts
+
+```
+yarn compile
+```
+
+3. Start the development server
+
+```
+yarn dev
+```
 

@@ -22,26 +22,23 @@ task('accounts', 'Prints the list of accounts', async (args, hre) => {
  */
 export default {
   solidity: {
-    version: "0.6.12",
+    version: '0.6.12',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
-      }
-    }
-      
-    
+        runs: 200,
+      },
+    },
   },
   paths: {
-    sources: "./src",
-    cache: "./cache",
-    tests: "./test",
-    artifacts: "./artifacts",
-    deploy: "./deploy"
+    sources: './src',
+    cache: './cache',
+    tests: './test',
+    artifacts: './artifacts',
+    deploy: './deploy',
   },
   spdxLicenseIdentifier: {
     overwrite: false,
     runOnCompile: true,
   },
 };
-
